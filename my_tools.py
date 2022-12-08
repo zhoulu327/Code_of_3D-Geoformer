@@ -129,28 +129,18 @@ class make_attention(nn.Module):
         nbatches = query.size(0)
         nspace = query.size(1)
         ntime = query.size(2)
-
-        # view相当于reshape函数，zip是一个迭代器
-        # 此步骤是将X,X,X经过线性映射层处理并重组形状得到用于计算多头atten的Q,K,V矩阵
-        # output:(batch, nheads, S, T, d_k)  d_k*nheads=d_size
         query, key, value = [
             l(x)
             .view(x.size(0), x.size(1), x.size(2), self.nheads, self.d_k)
             .permute(0, 3, 1, 2, 4)
             for l, x in zip(self.linears, (query, key, value))
         ]
-
-        # out: x:[batch, head, S:192, T:12, d_k:64)
         x = self.attention_module(query, key, value, mask=mask, dropout=self.dropout)
-
-        # configuous:把tensor变成在内存中连续分布的形式,因为view只能用在contiguous的variable上
-        # 如果在view之前用了transpose, permute等，需要用contiguous()来返回一个contiguous copy
-        # [B,head,S,T,d_k]-->[B,S,T,head,d_k]-->[B,S,T,head*d_k=d_size]
         x = (
             x.permute(0, 2, 3, 1, 4)
             .contiguous()
             .view(nbatches, nspace, ntime, self.nheads * self.d_k)
-        )  # out: [B,S,T,d_size]
+        )  
         return self.linears[-1](x)
 
 
