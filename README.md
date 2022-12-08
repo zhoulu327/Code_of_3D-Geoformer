@@ -1,9 +1,7 @@
-# Code_of_3D-Geoformer
+The project of the 3DGeoformer model used for Manuscript review.
 
-The project contains the main code of the 3DGeoformer mdoel for manuscript review.
-
-The current project only includes the code of model architecture, pre-training, trasfer-training,
-and model test.
+The current project contains only the code of model architecture, pre training, transfer training,
+and model testing.
 
 Due to the large size of the complete data, only a small amount of data is provided for model testing; 
-the complete data will be provided later through the database link.
+the whole dataset will provide later through the database link.
