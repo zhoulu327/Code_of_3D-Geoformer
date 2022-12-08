@@ -3,6 +3,42 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import copy
+from copy import deepcopy
+
+
+def runmean(data, n_run):
+    ll = data.shape[0]
+    data_run = np.zeros([ll])
+    for i in range(ll):
+        if i < (n_run - 1):
+            data_run[i] = np.nanmean(data[0 : i + 1])
+        else:
+            data_run[i] = np.nanmean(data[i - n_run + 1 : i + 1])
+    return data_run
+
+
+def cal_ninoskill2(pre_nino_all, real_nino):
+    """
+    :param pre_nino_all: [n_yr,start_mon,lead_max]
+    :param real_nino: [n_yr,12]
+    :return: nino_skill: [12,lead_max]
+    """
+    lead_max = pre_nino_all.shape[2]
+    nino_skill = np.zeros([12, lead_max])
+    for ll in range(lead_max):
+        lead = ll + 1
+        dd = deepcopy(pre_nino_all[:, :, ll])
+        for mm in range(12):
+            bb = dd[:, mm]
+            st_m = mm + 1
+            terget = st_m + lead
+            if 12 < terget <= 24:
+                terget = terget - 12
+            elif terget > 24:
+                terget = terget - 24
+            aa = deepcopy(real_nino[:, terget - 1])
+            nino_skill[mm, ll] = np.corrcoef(aa, bb)[0, 1]
+    return nino_skill
 
 
 class make_embedding(nn.Module):
@@ -97,7 +133,7 @@ def T_attention(query, key, value, mask=None, dropout=None):
     return torch.matmul(p_sc, value)
 
 
-def S_attention(query, key, value, mask=None,dropout=None):
+def S_attention(query, key, value, mask=None, dropout=None):
     d_k = query.size(-1)
     scores = torch.matmul(
         query.transpose(2, 3), key.transpose(2, 3).transpose(-2, -1)
@@ -140,7 +176,7 @@ class make_attention(nn.Module):
             x.permute(0, 2, 3, 1, 4)
             .contiguous()
             .view(nbatches, nspace, ntime, self.nheads * self.d_k)
-        )  
+        )
         return self.linears[-1](x)
 
 

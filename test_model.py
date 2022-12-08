@@ -7,7 +7,7 @@ from matplotlib.ticker import MultipleLocator
 import os
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
-from func_mytools import cal_ninoskill2, runmean
+from my_tools import cal_ninoskill2, runmean
 from func_for_prediction import func_pre
 mpl.use("Agg")
 plt.rc("font", family="Arial")
