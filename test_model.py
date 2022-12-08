@@ -9,11 +9,14 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from my_tools import cal_ninoskill2, runmean
 from func_for_prediction import func_pre
+
 mpl.use("Agg")
 plt.rc("font", family="Arial")
 mpl.rc("image", cmap="RdYlBu_r")
 plt.rcParams["xtick.direction"] = "in"
 plt.rcParams["ytick.direction"] = "in"
+
+
 def file_name(file_dir):
     L = []
     for root, dirs, files in os.walk(file_dir):
@@ -22,14 +25,15 @@ def file_name(file_dir):
                 L.append(os.path.join(root, file))
     return L
 
+
 # --------------------------------------------------------
 files = file_name("./model")
 file_num = len(files)
 lead_max = mypara.output_length
 adr_datain = (
-    "/home/zhoulu/mycode/data/up150_tauxy/GODAS_group_up150_temp_tauxy_8021_kb.nc"
+    "./data/GODAS_group_up150_temp_tauxy_8021_kb.nc"
 )
-adr_oridata = "/home/zhoulu/mycode/data/up150_tauxy/GODAS_up150m_temp_nino_tauxy_kb.nc"
+adr_oridata = "./data/GODAS_up150m_temp_nino_tauxy_kb.nc"
 # ---------------------------------------------------------
 for i_file in files[: file_num + 1]:
     fig1 = plt.figure(figsize=(5, 2.5), dpi=300)
@@ -40,7 +44,7 @@ for i_file in files[: file_num + 1]:
         adr_model=i_file,
         adr_datain=adr_datain,
         adr_oridata=adr_oridata,
-        needtauxy=mypara.needtauxy
+        needtauxy=mypara.needtauxy,
     )
     # -----------
     cut_nino_true_jx = deepcopy(cut_nino_true[(24 - lead_max + 1) :])

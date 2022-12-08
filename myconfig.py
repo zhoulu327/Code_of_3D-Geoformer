@@ -8,9 +8,9 @@ class Mypara:
 
 mypara = Mypara()
 mypara.device = torch.device("cuda:0")
-mypara.batch_size_train = 2
+mypara.batch_size_train = 8
 mypara.batch_size_eval = 10
-mypara.num_epochs = 50
+mypara.num_epochs = 40
 mypara.TFnum_epochs = 20
 mypara.TFlr = 1.5e-5
 mypara.early_stopping = True
@@ -19,17 +19,17 @@ mypara.warmup = 2000
 
 # data related
 mypara.adr_pretr = (
-    "/home/zhoulu/mycode/data/up150_tauxy/CMIP6_separate_model_up150m_tauxy_Nor_kb.nc"
+    "./data/up150_tauxy/CMIP6_separate_model_up150m_tauxy_Nor_kb.nc"
 )
-mypara.interval = 4.5
+mypara.interval = 4
 mypara.TraindataProportion = 0.9
-mypara.all_group = 120
+mypara.all_group = 13000
 mypara.adr_eval = (
-    "/home/zhoulu/mycode/data/up150_tauxy/SODA_ORAS_group_temp_tauxy_before1979_kb.nc"
+    "./data/up150_tauxy/SODA_ORAS_group_temp_tauxy_before1979_kb.nc"
 )
 mypara.needtauxy = True
 mypara.input_channal = 7  # n_lev of 3D temperature
-mypara.output_channal = 7  # n_lev of 3D temperature
+mypara.output_channal = 7
 mypara.input_length = 12
 mypara.output_length = 20
 mypara.lev_range = (1, 8)
@@ -51,5 +51,5 @@ mypara.d_size = 256
 mypara.nheads = 4
 mypara.dim_feedforward = 512
 mypara.dropout = 0.2
-mypara.num_encoder_layers = 3
-mypara.num_decoder_layers = 3
+mypara.num_encoder_layers = 4
+mypara.num_decoder_layers = 4

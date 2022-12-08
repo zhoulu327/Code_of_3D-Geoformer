@@ -1,11 +1,10 @@
 from Geoformer import Geoformer
 from myconfig import mypara
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 import numpy as np
 import os
-from LoadData_2 import make_TFdataset
+from LoadData import make_TFdataset
 
 
 def file_name(file_dir):
@@ -219,7 +218,7 @@ class TFtrainer:
 
 
 if __name__ == "__main__":
-    adr_TF = "/home/zhoulu/mycode/data/up150_tauxy/SODA_ORAS_group_temp_tauxy_before1979_kb.nc"
+    adr_TF = "./data/SODA_ORAS_group_temp_tauxy_before1979_kb.nc"
     print("\nloading TF_data...")
     dataTF = make_TFdataset(
         address=adr_TF,
