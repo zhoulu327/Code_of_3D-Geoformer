@@ -2,23 +2,16 @@ import numpy as np
 import matplotlib.pylab as plt
 from matplotlib.pyplot import MultipleLocator
 from matplotlib.collections import PolyCollection
-import cartopy.feature as cfeature
-import cartopy.crs as ccrs
-from cartopy.mpl.patch import geos_to_path
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+# import cartopy.feature as cfeature
+# import cartopy.crs as ccrs
+# from cartopy.mpl.patch import geos_to_path
+# from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import itertools
 from copy import deepcopy
 from sklearn.utils import resample
 
 
 def runmean(data, n_run):
-    """
-    使用前面的数据做滑动平均，如n_run=3
-    则使用i-2,i-1和i作为i点的滑动平均结果
-    :param data: 待滑动平均的数据
-    :param n_run: n点滑动平均
-    :return: n点滑动平均后的序列
-    """
     ll = data.shape[0]
     data_run = np.zeros([ll])
     for i in range(ll):
@@ -58,7 +51,6 @@ def cal_ACC(var_pred, var_true, isrunmean=False):
     return cov / (std_pre * std_true)
 
 
-# -----------pre_nino第二维是起报月份
 def cal_ninoskill2(pre_nino_all, real_nino):
     """
     :param pre_nino_all: [n_yr,start_mon,lead_max]
@@ -82,134 +74,6 @@ def cal_ninoskill2(pre_nino_all, real_nino):
             nino_skill[mm, ll] = np.corrcoef(aa, bb)[0, 1]
     return nino_skill
 
-
-def fig_3d(
-    fig,
-    ax,
-    x,
-    y,
-    z,
-    var_list,
-    cf_vmin,
-    cf_vmax,
-    cf_num,
-    proj,
-    cmap,
-    needcbar,
-    cbar_location,
-    cbar_interval,
-    cbar_label,
-    orientation="vertical",
-    title=None,
-    fontsize=10,
-):
-    """
-    Args:
-        fig: fig句柄，用于向上加坐标轴
-        ax: 子图ax句柄
-        x: meshgrid后的lon
-        y: meshgrid后的lat
-        z: lev深度值列表
-        var_list: [n_lev,lat,lon]
-        cf_vmin: 绘制contourf时填色的最大值,也决定了colorbar的范围
-        cf_vmax: 绘制contourf时填色的最小值
-        cbar_interval: colorbar上色彩分级间隔
-        cf_num: 绘制contourf时色彩分级数，越大contourf越细腻
-        proj: 地图投影方式
-        needcbar: 是否绘制colorbar
-        cbar_location: cbar位置，列表形式
-        cmap: colormap名称
-        cbar_label: colorbar上的label
-        fontsize: colorbar上数字、cbar label、ax title字号
-        orientation: cbar放置方式，'horizontal' or "vertical"
-        title: ax子图的title
-
-    Returns: fig, ax
-
-    """
-    concat = lambda iterable: list(itertools.chain.from_iterable(iterable))
-    if needcbar:
-        # --------------设置colorbar
-        # 绘制一个填色图，用于获取其colorbar范围，并用后销毁
-        pp = deepcopy(var_list[0])
-        aa = plt.figure(3).add_subplot(111)
-        bb = aa.contourf(
-            x,
-            y,
-            pp,
-            levels=np.arange(cf_vmin, cf_vmax + 0.01, cbar_interval),
-            cmap=cmap,
-        )
-
-        cbar_ax = fig.add_axes(cbar_location)
-        cbar = plt.colorbar(bb, cax=cbar_ax, extend="both", orientation=orientation)
-        cbar.ax.tick_params(labelsize=fontsize)
-        font = {
-            "family": "Arial",
-            "color": "k",
-            "weight": "normal",
-            "size": fontsize,
-        }
-        cbar.set_label(cbar_label, fontdict=font)  # 设置colorbar标签和字体
-        aa.set_visible(False)  # 用后隐藏
-        plt.close()
-        del aa, bb, pp
-    # ---------------------在3D画板上绘制填色图
-    for i in range(len(z)):
-        ax.contourf(
-            x,
-            y,
-            var_list[i],
-            cf_num,
-            vmin=cf_vmin,
-            vmax=cf_vmax,
-            cmap=cmap,
-            zdir="z",
-            offset=z[i],
-        )
-
-    # ----------新建一个图，绘制地图并迁移，用后销毁
-    proj_ax = plt.figure(2).add_subplot(111, projection=proj)
-    proj_ax.set_xlim(ax.get_xlim())
-    proj_ax.set_ylim(ax.get_ylim())
-    target_projection = proj_ax.projection
-    feature = cfeature.NaturalEarthFeature("physical", "land", "110m")
-    geoms = feature.geometries()
-    boundary = proj_ax._get_extent_geom()
-    geoms = [target_projection.project_geometry(geom, feature.crs) for geom in geoms]
-    geoms2 = []
-    for i in range(len(geoms)):
-        if geoms[i].is_valid:
-            geoms2.append(geoms[i])
-    geoms = geoms2
-    del geoms2
-    geoms = [boundary.intersection(geom) for geom in geoms]
-    paths = concat(geos_to_path(geom) for geom in geoms)  # geom转path
-    polys = concat(path.to_polygons() for path in paths)  # path转poly
-    # -------------将地图加入到3Dfig中
-    for i in range(len(z)):
-        lc = PolyCollection(polys, edgecolor="gray", facecolor="gray", closed=False)
-        ax.add_collection3d(lc, zs=z[i])
-        del lc
-    proj_ax.spines["geo"].set_visible(False)  # 解除掉用于确定地图的子图
-    plt.close()
-    # --------------添加黑框
-    for i in range(len(z)):
-        ax.plot(
-            [x[0, 0], x[0, -1], x[0, -1], x[0, 0], x[0, 0]],
-            [y[0, 0], y[0, 0], y[-1, 0], y[-1, 0], y[0, 0]],
-            [
-                z[i],
-                z[i],
-                z[i],
-                z[i],
-                z[i],
-            ],
-            "-k",
-            linewidth=1,
-        )
-    _ = ax.text(x=x[0, 0], y=y[-1, 0], z=z[0] - 9, s=title, fontsize=fontsize)
-    return fig, ax
 
 
 def tiansetu(
