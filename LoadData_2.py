@@ -235,17 +235,17 @@ class make_TFdataset(Dataset):
     def __init__(
         self,
         address,
-        config,
+        mypara,
         ngroup=None,
     ):
-        self.config = config
+        self.mypara = mypara
         data_in = xr.open_dataset(address)
         self.lev = data_in["lev"].values
         self.lat = data_in["lat"].values
         self.lon = data_in["lon"].values
-        self.lev_range = config.lev_range
-        self.lon_range = config.lon_range
-        self.lat_range = config.lat_range
+        self.lev_range = mypara.lev_range
+        self.lon_range = mypara.lon_range
+        self.lat_range = mypara.lat_range
 
         temp_in = data_in["temperatureNor_in"][
             :,
@@ -256,9 +256,9 @@ class make_TFdataset(Dataset):
         ].values
         temp_in = np.nan_to_num(temp_in)
         temp_in[abs(temp_in) > 999] = 0
-        assert config.input_length == temp_in.shape[1]
-        if config.needtauxy:
-            print("已使用tauxy...")
+        assert mypara.input_length == temp_in.shape[1]
+        if mypara.needtauxy:
+            print("loading tauxy...")
             taux_in = data_in["tauxNor_in"][
                 :,
                 :,
@@ -275,15 +275,14 @@ class make_TFdataset(Dataset):
             ].values
             tauy_in = np.nan_to_num(tauy_in)
             tauy_in[abs(tauy_in) > 999] = 0
-            # ------------拼接
             field_data_in = np.concatenate(
                 (taux_in[:, :, None], tauy_in[:, :, None], temp_in), axis=2
-            )  # [group,lb,all_lev,lat,lon]
+            )
             del temp_in, taux_in, tauy_in
         else:
             field_data_in = temp_in
             del temp_in
-        # ====================out
+        # ================
         temp_out = data_in["temperatureNor_out"][
             :,
             :,
@@ -293,9 +292,9 @@ class make_TFdataset(Dataset):
         ].values
         temp_out = np.nan_to_num(temp_out)
         temp_out[abs(temp_out) > 999] = 0
-        assert config.output_length == temp_out.shape[1]
-        if config.needtauxy:
-            print("已使用tauxy...")
+        assert mypara.output_length == temp_out.shape[1]
+        if mypara.needtauxy:
+            print("loading tauxy...")
             taux_out = data_in["tauxNor_out"][
                 :,
                 :,
@@ -312,7 +311,7 @@ class make_TFdataset(Dataset):
             ].values
             tauy_out = np.nan_to_num(tauy_out)
             tauy_out[abs(tauy_out) > 999] = 0
-            # ------------拼接
+            # ------------
             field_data_out = np.concatenate(
                 (taux_out[:, :, None], tauy_out[:, :, None], temp_out), axis=2
             )  # [group,lb,all_lev,lat,lon]
@@ -327,7 +326,6 @@ class make_TFdataset(Dataset):
         del field_data_in, field_data_out
 
     def deal_testdata(self, field_data_in, field_data_out, ngroup):
-        print("正在采样...")
         lb = field_data_in.shape[1]
         output_length = field_data_out.shape[1]
         if ngroup is None:
@@ -356,7 +354,6 @@ class make_TFdataset(Dataset):
             out_field_x[iii] = field_data_in[rd]
             out_field_y[iii] = field_data_out[rd]
             iii += 1
-        print("采样完成...")
         return out_field_x, out_field_y
 
     def getdatashape(self):
