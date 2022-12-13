@@ -1,7 +1,7 @@
-The project of the 3DGeoformer model used for Manuscript review.
+3DGeoformer model project library for Manuscript review and sharing ^-^
 
-The current project contains only the code of model architecture, pre training, transfer training,
-and model testing.
+The current project only contains the 3DG model code, pre-training code, transfer training code, and testing code.
 
-Due to the large size of the complete dataset, only a small amount of data is provided for model testing; 
-the whole dataset will provide later through the database link.
+Due to the large size of the complete dataset, only a small amount of data is provided for model test; the whole dataset will be provided later through a database link.
+
+Finally, the complete project code and data will be published if the Manuscript passes the review.
