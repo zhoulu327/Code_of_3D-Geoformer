@@ -4,10 +4,6 @@ from torch.utils.data import Dataset
 import xarray as xr
 import random
 
-"""
-online reading dataset
-"""
-
 
 class make_dataset1(Dataset):
     def __init__(self, mypara):
@@ -135,6 +131,9 @@ class make_dataset1(Dataset):
 
 
 class make_dataset2(IterableDataset):
+    """
+    online reading dataset
+    """
     def __init__(self, mypara):
         self.mypara = mypara
         data_in = xr.open_dataset(mypara.adr_pretr)
