@@ -1,4 +1,4 @@
-The training and validation datasets can be downloaded through the following link:
+--> The training and validation datasets can be downloaded through the following link:
 https://datapid.cn/CSTR:33685.11.IOCAS.20221214.001
 
 Training data: 
@@ -9,7 +9,7 @@ Testing data:
 GODAS_group_up150_temp_tauxy_8021_kb.nc
 GODAS_up150m_temp_nino_tauxy_kb-1670841778160.nc
 
-The multivariate prediction results using the 3D-Geoformer model are listed here:
+--> The multivariate prediction results using the 3D-Geoformer model are listed here:
 https://datapid.cn/CSTR:33685.11.IOCAS.20221214.001
 
 Hindcast data:
